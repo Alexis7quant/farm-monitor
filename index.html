@@ -336,10 +336,13 @@ function renderCharts(history) {
   const extHist = history.filter(h => h.platform === 'ext').slice(-10);
 
   // Build aligned labels (union of all epoch labels)
-  const allEpochs = [...new Set([...varHist, ...extHist].map(h => h.epoch_id))].sort();
+  const allEpochs = [...new Set([...varHist, ...extHist].map(h => h.epoch_id))]
+    .filter(id => id && id !== 'undefined')
+    .sort();
   const labels = allEpochs.map(id => {
     const h = history.find(x => x.epoch_id === id);
-    return h ? h.epoch_label.split(' → ')[0] : id;
+    if (!h || !h.epoch_label) return id;
+    return h.epoch_label.split(' → ')[0];
   });
 
   const toM = (hist, epochs) => epochs.map(id => {
@@ -373,7 +376,9 @@ function renderCharts(history) {
   ]}, options:opts });
 
   // History table
-  const rows = [...history].reverse().map(h =>
+  const rows = [...history].reverse()
+    .filter(h => h.epoch_id && h.epoch_id !== 'undefined')
+    .map(h =>
     `<tr>
       <td class="ep">${h.epoch_label || h.epoch_id}</td>
       <td style="color:${h.platform==='var'?'#1D9E75':'#378ADD'}">${h.platform==='var'?'Variational':'Extended'}</td>
