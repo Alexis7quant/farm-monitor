@@ -1,0 +1,27 @@
+name: Farm Monitor Collector
+ 
+on:
+  schedule:
+    - cron: '10 0 * * *'  # Runs daily at 00:10 UTC
+  workflow_dispatch:        # Allows manual trigger from GitHub UI
+ 
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+ 
+      - name: Install dependencies
+        run: pip install requests
+ 
+      - name: Run collector
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+        run: python farm_collector.py
